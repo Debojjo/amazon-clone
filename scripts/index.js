@@ -1,5 +1,5 @@
-import { cart,cartUpdation } from "../Lists/cart.js";
-import { products } from "../Lists/products.js";
+import { cart, cartUpdation } from "/Lists/cart.js";
+import { products } from "/Lists/products.js";
 
 let productsInHTML = "";
 

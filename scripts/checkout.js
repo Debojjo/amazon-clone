@@ -2,12 +2,13 @@ import {
   cart,
   deletionFromCart,
   updateDeliveryOption,
-  saveToCart,
-} from "../Lists/cart.js";
-import { products } from "../Lists/products.js";
+  saveToCart
+} from "/Lists/cart.js";
+
+import { products } from "/Lists/products.js";
 import dayjs from "https://unpkg.com/dayjs@1.11.10/esm/index.js";
-import { delivery } from "../Lists/delivery.js";
-import { renderPayment } from "./payment.js";
+import { delivery } from "/Lists/delivery.js";
+import { renderPayment } from "/scripts/payment.js";
 
 function renderOrder() {
   let cartHTML = "";

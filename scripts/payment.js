@@ -1,6 +1,7 @@
-import { cart } from "../Lists/cart.js";
-import { products } from "../Lists/products.js";
-import { delivery } from "../Lists/delivery.js";
+import { cart } from "/Lists/cart.js";
+import { products } from "/Lists/products.js";
+import { delivery } from "/Lists/delivery.js";
+
 
 export function renderPayment() {
   let totalProductPrice = 0;
