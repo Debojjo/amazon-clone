@@ -2,7 +2,7 @@ import {
   cart,
   deletionFromCart,
   updateDeliveryOption,
-  saveToCart
+  saveToCart,
 } from "/Lists/cart.js";
 
 import { products } from "/Lists/products.js";
@@ -63,7 +63,11 @@ function renderOrder() {
         <div class="cart-item-details">
           <div class="product-name">
             ${item.productName}
-            ${item.selectedSize ? `<div class="product-size">Size: ${item.selectedSize}</div>` : ""}
+            ${
+              item.selectedSize
+                ? `<div class="product-size">Size: ${item.selectedSize}</div>`
+                : ""
+            }
           </div>
           <div class="product-price">
             ${matchedItem.priceINR}
@@ -77,11 +81,12 @@ function renderOrder() {
             }">
               Update
             </span>
-            <span class="delete-quantity-link link-primary" data-product-id="${
-              matchedItem.id
-            }">
+            <span class="delete-quantity-link link-primary"
+                  data-product-id="${matchedItem.id}"
+                  data-selected-size="${item.selectedSize || ""}">
               Delete
             </span>
+
           </div>
         </div>
 
@@ -130,15 +135,12 @@ function renderOrder() {
   document.querySelectorAll(".delete-quantity-link").forEach((link) => {
     link.addEventListener("click", () => {
       const productId = link.dataset.productId;
-      deletionFromCart(productId);
-      renderPayment();
+      const selectedSize = link.dataset.selectedSize || null;
 
-      const delContainer = document.querySelector(
-        `.cart-item-container-${productId}`
-      );
-      delContainer.remove();
-      checkoutDisplay();
+      deletionFromCart(productId, selectedSize);
+      renderPayment();
       renderOrder();
+      checkoutDisplay();
     });
   });
 

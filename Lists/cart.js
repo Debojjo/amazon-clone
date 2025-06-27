@@ -19,7 +19,6 @@ if (!storedCart) {
 
 export let cart = storedCart;
 
-
 export function saveToCart() {
   localStorage.setItem("cart", JSON.stringify(cart));
 }
@@ -106,9 +105,14 @@ export function cartUpdation() {
   });
 }
 
-
-export function deletionFromCart(productId) {
-  cart = cart.filter((item) => item.productId !== productId);
+export function deletionFromCart(productId, selectedSize) {
+  cart = cart.filter(
+    (item) =>
+      !(
+        item.productId === productId &&
+        (item.selectedSize || "") === (selectedSize || "")
+      )
+  );
   saveToCart();
 }
 
