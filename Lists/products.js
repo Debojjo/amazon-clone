@@ -46,6 +46,7 @@ export const products = [
     rating: { stars: 4.0, count: 260 },
     priceINR: "₹1,299",
     keywords: ["campus", "running", "shoes"],
+    sizes: [6, 7, 8, 9, 10]
   },
   {
     id: "de40f3a4-d5e2-491f-abc3-03",
@@ -294,6 +295,7 @@ export const products = [
     rating: { stars: 3.0, count: 1700 },
     priceINR: "₹779",
     keywords: ["biba", "kurti", "cotton", "fashion"],
+    sizes: ["S", "M", "L", "XL"]
   },
   {
     id: "1c5f49ac-bf3d-46e2-9f4d-37",
@@ -310,6 +312,7 @@ export const products = [
     rating: { stars: 4.0, count: 1200 },
     priceINR: "₹399",
     keywords: ["jockey", "briefs", "innerwear"],
+    sizes: ["S", "M", "L", "XL"]
   },
   {
     id: "cd913ff4-f1e0-47c8-b978-01",

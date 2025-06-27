@@ -63,6 +63,7 @@ function renderOrder() {
         <div class="cart-item-details">
           <div class="product-name">
             ${item.productName}
+            ${item.selectedSize ? `<div class="product-size">Size: ${item.selectedSize}</div>` : ""}
           </div>
           <div class="product-price">
             ${matchedItem.priceINR}

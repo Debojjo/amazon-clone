@@ -48,27 +48,64 @@ export function cartUpdation() {
       );
       const selectedQuantity = Number(quantitySelector.value);
 
-      let matchedItem;
-      cart.forEach((item) => {
-        if (productName === item.productName) matchedItem = item;
-      });
+      const sizeSelector = document.getElementById(`size-select-${productId}`);
+      const selectedSize = sizeSelector ? sizeSelector.value : null;
 
-      if (matchedItem) {
-        matchedItem.quantity += 1;
-      } else {
-        cart.push({
-          productId: productId,
-          productName: productName,
-          quantity: selectedQuantity,
-          deliveryId: "1",
-        });
+      const updateOriginalSize = localStorage.getItem("updateSize");
+
+      let updated = false;
+
+      if (updateOriginalSize !== null) {
+        for (let i = 0; i < cart.length; i++) {
+          const item = cart[i];
+          if (
+            item.productId === productId &&
+            item.selectedSize === updateOriginalSize
+          ) {
+            item.quantity = selectedQuantity;
+            item.selectedSize = selectedSize;
+            updated = true;
+            break;
+          }
+        }
       }
+
+      if (!updated) {
+        // Check if same item with same size already exists in cart
+        let found = false;
+        for (let i = 0; i < cart.length; i++) {
+          const item = cart[i];
+          if (
+            item.productId === productId &&
+            item.selectedSize === selectedSize
+          ) {
+            item.quantity += selectedQuantity;
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          cart.push({
+            productId: productId,
+            productName: productName,
+            quantity: selectedQuantity,
+            selectedSize: selectedSize,
+            deliveryId: "1",
+          });
+        }
+      }
+
+      localStorage.removeItem("updateQuantity");
+      localStorage.removeItem("updateSize");
+      localStorage.removeItem("scrollToProduct");
 
       saveToCart();
       showQuantity();
     });
   });
 }
+
 
 export function deletionFromCart(productId) {
   cart = cart.filter((item) => item.productId !== productId);
