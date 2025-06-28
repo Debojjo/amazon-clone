@@ -1,5 +1,6 @@
 import { cart, cartUpdation } from "/Lists/cart.js";
-import { products } from "/Lists/products.js";
+import { products,getProducts } from "/Lists/products.js";
+
 
 function renderProducts(productList) {
   let productsInHTML = "";
@@ -94,75 +95,78 @@ function renderProducts(productList) {
 
   document.querySelector(".products-grid").innerHTML = productsInHTML;
 
-  // 🟡 Important: Re-attach event listeners after rendering
   cartUpdation();
 }
 
-renderProducts(products);
+function initApp() {
+  renderProducts(products);
 
-const scrollToProduct = localStorage.getItem("scrollToProduct");
-const updateQuantity = localStorage.getItem("updateQuantity");
-const updateSize = localStorage.getItem("updateSize");
+  const scrollToProduct = localStorage.getItem("scrollToProduct");
+  const updateQuantity = localStorage.getItem("updateQuantity");
+  const updateSize = localStorage.getItem("updateSize");
 
-if (scrollToProduct) {
-  const productContainer = document.querySelector(
-    `.product-container-${scrollToProduct}`
-  );
-
-  if (productContainer) {
-
-    productContainer.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    const quantitySelector = productContainer.querySelector(
-      `.quantity-selector-${scrollToProduct}`
+  if (scrollToProduct) {
+    const productContainer = document.querySelector(
+      `.product-container-${scrollToProduct}`
     );
-    if (quantitySelector && updateQuantity) {
-      quantitySelector.value = updateQuantity;
+
+    if (productContainer) {
+      productContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      const quantitySelector = productContainer.querySelector(
+        `.quantity-selector-${scrollToProduct}`
+      );
+      if (quantitySelector && updateQuantity) {
+        quantitySelector.value = updateQuantity;
+      }
+
+      const sizeSelector = document.getElementById(
+        `size-select-${scrollToProduct}`
+      );
+      if (sizeSelector && updateSize) {
+        sizeSelector.value = updateSize;
+      }
     }
 
-    const sizeSelector = document.getElementById(
-      `size-select-${scrollToProduct}`
-    );
-    if (sizeSelector && updateSize) {
-      sizeSelector.value = updateSize;
-    }
+    localStorage.removeItem("scrollToProduct");
+    localStorage.removeItem("updateQuantity");
+    localStorage.removeItem("updateSize");
   }
 
-  localStorage.removeItem("scrollToProduct");
-  localStorage.removeItem("updateQuantity");
-  localStorage.removeItem("updateSize");
-}
+  document.querySelector(".search-bar").addEventListener("input", (event) => {
+    const searchTerm = event.target.value.toLowerCase();
 
-document.querySelector(".search-bar").addEventListener("input", (event) => {
-  const searchTerm = event.target.value.toLowerCase();
+    const filteredProducts = products.filter((product) => {
+      return product.keywords.some((keyword) =>
+        keyword.toLowerCase().includes(searchTerm)
+      );
+    });
 
-  const filteredProducts = products.filter((product) => {
-    return product.keywords.some((keyword) =>
-      keyword.toLowerCase().includes(searchTerm)
-    );
+    renderProducts(filteredProducts);
   });
 
-  renderProducts(filteredProducts);
-});
+  function searchAndRender() {
+    const searchInput = document.querySelector(".search-bar").value.toLowerCase();
 
-function searchAndRender() {
-  const searchInput = document.querySelector(".search-bar").value.toLowerCase();
+    const filteredProducts = products.filter((product) =>
+      product.keywords.some((keyword) =>
+        keyword.toLowerCase().includes(searchInput)
+      )
+    );
 
-  const filteredProducts = products.filter((product) =>
-    product.keywords.some((keyword) =>
-      keyword.toLowerCase().includes(searchInput)
-    )
-  );
+    renderProducts(filteredProducts);
+  }
 
-  renderProducts(filteredProducts);
+  document.querySelector(".search-button").addEventListener("click", () => {
+    searchAndRender();
+  });
+
+  document.querySelector(".search-bar").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      searchAndRender();
+    }
+  });
 }
 
-document.querySelector(".search-button").addEventListener("click", () => {
-  searchAndRender();
-});
+getProducts(initApp); 
 
-document.querySelector(".search-bar").addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    searchAndRender();
-  }
-});

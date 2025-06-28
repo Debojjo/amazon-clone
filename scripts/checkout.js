@@ -5,53 +5,54 @@ import {
   saveToCart,
 } from "/Lists/cart.js";
 
-import { products } from "/Lists/products.js";
+import { products, getProducts } from "/Lists/products.js";
 import dayjs from "https://unpkg.com/dayjs@1.11.10/esm/index.js";
 import { delivery } from "/Lists/delivery.js";
 import { renderPayment } from "/scripts/payment.js";
 
-function renderOrder() {
-  let cartHTML = "";
+function initCheckout() {
+  function renderOrder() {
+    let cartHTML = "";
 
-  function checkoutDisplay() {
-    let checkoutQuantity = 0;
+    function checkoutDisplay() {
+      let checkoutQuantity = 0;
+      cart.forEach((item) => {
+        checkoutQuantity += item.quantity;
+      });
+
+      const checkoutQuantityElement =
+        document.querySelector(".checkout-quantity");
+      if (!checkoutQuantityElement) return;
+
+      checkoutQuantityElement.innerHTML =
+        checkoutQuantity > 1
+          ? `Checkout(${checkoutQuantity} items)`
+          : `Checkout(${checkoutQuantity} item)`;
+    }
+    checkoutDisplay();
+
     cart.forEach((item) => {
-      checkoutQuantity += item.quantity;
-    });
+      const productId = item.productId;
 
-    const checkoutQuantityElement =
-      document.querySelector(".checkout-quantity");
-    if (!checkoutQuantityElement) return;
+      let matchedItem;
+      products.forEach((product) => {
+        if (product.id === productId) {
+          matchedItem = product;
+        }
+      });
 
-    checkoutQuantityElement.innerHTML =
-      checkoutQuantity > 1
-        ? `Checkout(${checkoutQuantity} items)`
-        : `Checkout(${checkoutQuantity} item)`;
-  }
-  checkoutDisplay();
+      const deliveryId = item.deliveryId;
+      let selectedDelivery;
+      delivery.forEach((option) => {
+        if (option.id === deliveryId) {
+          selectedDelivery = option;
+        }
+      });
 
-  cart.forEach((item) => {
-    const productId = item.productId;
+      const deliveryDate = dayjs().add(selectedDelivery.deliveryTime, "days");
+      const deliveryInfo = deliveryDate.format("dddd, MMMM D");
 
-    let matchedItem;
-    products.forEach((product) => {
-      if (product.id === productId) {
-        matchedItem = product;
-      }
-    });
-
-    const deliveryId = item.deliveryId;
-    let selectedDelivery;
-    delivery.forEach((option) => {
-      if (option.id === deliveryId) {
-        selectedDelivery = option;
-      }
-    });
-
-    const deliveryDate = dayjs().add(selectedDelivery.deliveryTime, "days");
-    const deliveryInfo = deliveryDate.format("dddd, MMMM D");
-
-    cartHTML += `
+      cartHTML += `
     <div class="cart-item-container cart-item-container-${matchedItem.id}">
       <div class="delivery-date">
         Delivery date: ${deliveryInfo}
@@ -97,21 +98,21 @@ function renderOrder() {
       </div>
     </div>
   `;
-  });
+    });
 
-  function deliveryBlock(matchedItem, item) {
-    let deliveryHTML = "";
+    function deliveryBlock(matchedItem, item) {
+      let deliveryHTML = "";
 
-    delivery.forEach((deliveryItem) => {
-      const todayDate = dayjs();
-      const deliveryDate = todayDate.add(deliveryItem.deliveryTime, "days");
-      const deliveryInfo = deliveryDate.format("dddd, MMMM D");
-      const price =
-        deliveryItem.price === 0 ? "FREE" : `₹${deliveryItem.price}`;
+      delivery.forEach((deliveryItem) => {
+        const todayDate = dayjs();
+        const deliveryDate = todayDate.add(deliveryItem.deliveryTime, "days");
+        const deliveryInfo = deliveryDate.format("dddd, MMMM D");
+        const price =
+          deliveryItem.price === 0 ? "FREE" : `₹${deliveryItem.price}`;
 
-      const isChecked = deliveryItem.id === item.deliveryId;
+        const isChecked = deliveryItem.id === item.deliveryId;
 
-      deliveryHTML += `
+        deliveryHTML += `
       <div class="delivery-option"
            data-product-id="${matchedItem.id}"
            data-delivery-option-id="${deliveryItem.id}">
@@ -125,44 +126,46 @@ function renderOrder() {
         </div>
       </div>
     `;
+      });
+
+      return deliveryHTML;
+    }
+
+    document.querySelector(".order-summary").innerHTML = cartHTML;
+
+    document.querySelectorAll(".delete-quantity-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        const productId = link.dataset.productId;
+        const selectedSize = link.dataset.selectedSize || null;
+
+        deletionFromCart(productId, selectedSize);
+        renderPayment();
+        renderOrder();
+        checkoutDisplay();
+      });
     });
 
-    return deliveryHTML;
+    document.querySelectorAll(".update-quantity-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        const productId = link.dataset.productId;
+        localStorage.setItem("scrollToProduct", productId);
+        window.location.href = "index.html";
+      });
+    });
+
+    document.querySelectorAll(".delivery-option").forEach((el) => {
+      el.addEventListener("click", () => {
+        const productId = el.dataset.productId;
+        const deliveryOptionId = el.dataset.deliveryOptionId;
+
+        updateDeliveryOption(productId, deliveryOptionId);
+
+        renderOrder();
+        renderPayment();
+      });
+    });
   }
-
-  document.querySelector(".order-summary").innerHTML = cartHTML;
-
-  document.querySelectorAll(".delete-quantity-link").forEach((link) => {
-    link.addEventListener("click", () => {
-      const productId = link.dataset.productId;
-      const selectedSize = link.dataset.selectedSize || null;
-
-      deletionFromCart(productId, selectedSize);
-      renderPayment();
-      renderOrder();
-      checkoutDisplay();
-    });
-  });
-
-  document.querySelectorAll(".update-quantity-link").forEach((link) => {
-    link.addEventListener("click", () => {
-      const productId = link.dataset.productId;
-      localStorage.setItem("scrollToProduct", productId);
-      window.location.href = "index.html";
-    });
-  });
-
-  document.querySelectorAll(".delivery-option").forEach((el) => {
-    el.addEventListener("click", () => {
-      const productId = el.dataset.productId;
-      const deliveryOptionId = el.dataset.deliveryOptionId;
-
-      updateDeliveryOption(productId, deliveryOptionId);
-
-      renderOrder();
-      renderPayment();
-    });
-  });
+  renderOrder();
+  renderPayment();
 }
-renderOrder();
-renderPayment();
+getProducts(initCheckout);
