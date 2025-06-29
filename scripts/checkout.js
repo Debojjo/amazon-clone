@@ -10,7 +10,8 @@ import dayjs from "https://unpkg.com/dayjs@1.11.10/esm/index.js";
 import { delivery } from "/Lists/delivery.js";
 import { renderPayment } from "/scripts/payment.js";
 
-function initCheckout() {
+async function initCheckout() {
+  await getProducts();
   function renderOrder() {
     let cartHTML = "";
 
@@ -168,4 +169,4 @@ function initCheckout() {
   renderOrder();
   renderPayment();
 }
-getProducts(initCheckout);
+initCheckout();

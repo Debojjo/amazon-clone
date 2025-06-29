@@ -1,6 +1,5 @@
 import { cart, cartUpdation } from "/Lists/cart.js";
-import { products,getProducts } from "/Lists/products.js";
-
+import { products, getProducts } from "/Lists/products.js";
 
 function renderProducts(productList) {
   let productsInHTML = "";
@@ -98,7 +97,8 @@ function renderProducts(productList) {
   cartUpdation();
 }
 
-function initApp() {
+async function initApp() {
+  await getProducts();
   renderProducts(products);
 
   const scrollToProduct = localStorage.getItem("scrollToProduct");
@@ -146,7 +146,9 @@ function initApp() {
   });
 
   function searchAndRender() {
-    const searchInput = document.querySelector(".search-bar").value.toLowerCase();
+    const searchInput = document
+      .querySelector(".search-bar")
+      .value.toLowerCase();
 
     const filteredProducts = products.filter((product) =>
       product.keywords.some((keyword) =>
@@ -168,5 +170,4 @@ function initApp() {
   });
 }
 
-getProducts(initApp); 
-
+initApp();
