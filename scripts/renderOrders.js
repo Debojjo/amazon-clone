@@ -1,6 +1,7 @@
 import { orders } from "/scripts/orders.js";
 import { products, getProducts } from "/Lists/products.js";
 import { delivery } from "/Lists/delivery.js";
+import dayjs from "https://unpkg.com/dayjs@1.11.10/esm/index.js";
 
 function formatDate(dateString) {
   if (!dateString) return "";
@@ -37,11 +38,19 @@ async function renderOrders() {
       totalProductPrice += priceNumber * quantity;
 
       const deliveryOption = delivery.find((d) => d.id === cartItem.deliveryId);
+
       if (deliveryOption) {
         totalDeliveryPrice += deliveryOption.price;
       }
 
-      const deliveryDate = "August 15";
+      // Calculate delivery date dynamically using dayjs and delivery time
+      let deliveryDateFormatted = "";
+      if (deliveryOption && deliveryOption.deliveryTime !== undefined) {
+        const deliveryDate = dayjs(order.createdAt).add(deliveryOption.deliveryTime, "day");
+        deliveryDateFormatted = deliveryDate.format("MMMM D");
+      } else {
+        deliveryDateFormatted = "N/A";
+      }
 
       productsHTML += `
         <div class="product-image-container">
@@ -50,9 +59,9 @@ async function renderOrders() {
 
         <div class="product-details">
           <div class="product-name">${product.name}</div>
-          <div class="product-delivery-date">Arriving on: ${deliveryDate}</div>
+          <div class="product-delivery-date">Arriving on: ${deliveryDateFormatted}</div>
           <div class="product-quantity">Quantity: ${quantity}</div>
-          <button class="buy-again-button button-primary">
+          <button class="buy-again-button button-primary" data-product-id="${product.id}">
             <img class="buy-again-icon" src="images/icons/buy-again.png" alt="Buy Again">
             <span class="buy-again-message">Buy it again</span>
           </button>
@@ -60,7 +69,7 @@ async function renderOrders() {
 
         <div class="product-actions">
           <a href="tracking.html">
-            <button class="track-package-button button-secondary">Track package</button>
+            <button class="track-package-button button-secondary" data-product-id="${product.id}">Track package</button>
           </a>
         </div>
       `;
@@ -96,8 +105,31 @@ async function renderOrders() {
 
     ordersGrid.insertAdjacentHTML("beforeend", orderHTML);
   });
+
+  // Add event listeners after render
+  ordersGrid.querySelectorAll(".buy-again-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const productId = button.dataset.productId;
+      if (!productId) return;
+      localStorage.setItem("scrollToProduct", productId);
+      window.location.href = "index.html";
+    });
+  });
+
+  ordersGrid.querySelectorAll(".track-package-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const productId = button.dataset.productId;
+      if (!productId) return;
+      localStorage.setItem("trackingProductId", productId);
+      window.location.href = "tracking.html";
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   renderOrders();
 });
+
+
+
+
