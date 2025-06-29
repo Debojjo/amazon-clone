@@ -43,10 +43,12 @@ async function renderOrders() {
         totalDeliveryPrice += deliveryOption.price;
       }
 
-      // Calculate delivery date dynamically using dayjs and delivery time
       let deliveryDateFormatted = "";
       if (deliveryOption && deliveryOption.deliveryTime !== undefined) {
-        const deliveryDate = dayjs(order.createdAt).add(deliveryOption.deliveryTime, "day");
+        const deliveryDate = dayjs(order.createdAt).add(
+          deliveryOption.deliveryTime,
+          "day"
+        );
         deliveryDateFormatted = deliveryDate.format("MMMM D");
       } else {
         deliveryDateFormatted = "N/A";
@@ -106,7 +108,6 @@ async function renderOrders() {
     ordersGrid.insertAdjacentHTML("beforeend", orderHTML);
   });
 
-  // Add event listeners after render
   ordersGrid.querySelectorAll(".buy-again-button").forEach((button) => {
     button.addEventListener("click", () => {
       const productId = button.dataset.productId;
@@ -129,7 +130,3 @@ async function renderOrders() {
 document.addEventListener("DOMContentLoaded", () => {
   renderOrders();
 });
-
-
-
-
